@@ -101,204 +101,6 @@
       <div class="title">
         <div class="logo">G3</div>
         <div>
-          <h1>galeria by g3</h1>
-          <div class="muted">v1</div>
-        </div>
-      </div>
-      <div class="toolbar">
-        <div class="search">
-          <input id="q" type="search" placeholder="Pesquisar pelo nome do arquivo… (ex: foto7)" aria-label="Pesquisar" />
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M21 21l-4.3-4.3M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-          </svg>
-        </div>
-      </div>
-    </div>
-  </header>
-
-  <main class="container">
-    <div id="grid" class="grid" role="list" aria-label="Galeria de fotos"></div>
-  </main>
-
-  <dialog id="lightbox" aria-label="Visualizador de imagem">
-    <div class="viewer">
-      <img id="full" alt="Visualização da foto" />
-    </div>
-    <div class="bar">
-      <button class="btn" id="prev">◀ Anterior</button>
-      <button class="btn" id="next">Próxima ▶</button>
-      <div class="grow filename" id="fileLabel">—</div>
-      <a class="btn" id="download" download>Baixar</a>
-      <form method="dialog">
-        <button class="btn">Fechar ✕</button>
-      </form>
-    </div>
-  </dialog>
-
-  <footer>
-    Feito por G3 com muito ❤️
-  </footer>
-
-  <script>
-    // ===== CONFIG FACIL =====
-    const TOTAL = 15;                  // quantidade de fotos
-    const PREFIXO = 'foto';            // prefixo dos arquivos
-    const EXT = '.jpg';                // extensão
-    const PATH = './';                 // pasta onde estão as fotos (./ se estiverem na raiz)
-    const SITE_TITLE = 'galeria do g3';
-
-    document.title = SITE_TITLE;
-
-    // Gera a lista de arquivos: foto1.jpg ... foto15.jpg
-    const arquivos = Array.from({length: TOTAL}, (_,i) => `${PREFIXO}${i+1}${EXT}`);
-
-    // Monta a grade
-    const grid = document.getElementById('grid');
-    arquivos.forEach((nome, idx) => {
-      const card = document.createElement('article');
-      card.className = 'card';
-      card.setAttribute('role','listitem');
-
-      const img = document.createElement('img');
-      img.loading = 'lazy';
-      img.decoding = 'async';
-      img.alt = `Miniatura ${nome}`;
-      img.src = PATH + nome; // coloque os arquivos .jpg na mesma pasta do index.html OU ajuste PATH
-
-      const badge = document.createElement('div');
-      badge.className = 'badge';
-      badge.textContent = `#${String(idx+1).padStart(2,'0')}`;
-
-      card.appendChild(img);
-      card.appendChild(badge);
-      card.addEventListener('click', () => abrirLightbox(idx));
-      grid.appendChild(card);
-    });
-
-    // Filtro simples pelo nome do arquivo
-    const input = document.getElementById('q');
-    input.addEventListener('input', () => {
-      const termo = input.value.toLowerCase().trim();
-      Array.from(grid.children).forEach((card, i) => {
-        const nome = arquivos[i].toLowerCase();
-        card.style.display = nome.includes(termo) ? '' : 'none';
-      });
-    });
-
-    // Lightbox
-    const dlg = document.getElementById('lightbox');
-    const full = document.getElementById('full');
-    const prev = document.getElementById('prev');
-    const next = document.getElementById('next');
-    const fileLabel = document.getElementById('fileLabel');
-    const download = document.getElementById('download');
-    let atual = 0;
-
-    function abrirLightbox(i){
-      atual = i;
-      atualizarViewer();
-      if(typeof dlg.showModal === 'function') dlg.showModal(); else dlg.setAttribute('open', '');
-    }
-
-    function atualizarViewer(){
-      const nome = arquivos[atual];
-      full.src = PATH + nome;
-      fileLabel.textContent = nome;
-      download.href = PATH + nome;
-      download.setAttribute('download', nome);
-      prev.disabled = (atual === 0);
-      next.disabled = (atual === arquivos.length - 1);
-    }
-
-    prev.addEventListener('click', () => { if(atual>0){ atual--; atualizarViewer(); }});
-    next.addEventListener('click', () => { if(atual<arquivos.length-1){ atual++; atualizarViewer(); }});
-
-    // Teclado: setas e ESC
-    window.addEventListener('keydown', (e) => {
-      if(!dlg.open) return;
-      if(e.key === 'ArrowLeft') prev.click();
-      if(e.key === 'ArrowRight') next.click();
-      if(e.key === 'Escape') dlg.close();
-    });
-
-    // Clique fora para fechar (somente quando clicar no backdrop real)
-    dlg.addEventListener('click', (e)=>{ if(e.target === dlg) dlg.close(); });
-
-    // Pré-carregar a próxima imagem quando abrir
-    dlg.addEventListener('close', ()=>{ full.src = '' });
-  </script>
-</body>
-</html>
-    .logo{
-      width:40px; height:40px; border-radius:12px; display:grid; place-items:center;
-      background: linear-gradient(135deg, var(--brand), var(--brand-2));
-      box-shadow: 0 10px 30px rgba(124,58,237,.25);
-      font-weight:800;
-    }
-    h1{font-size: clamp(1.1rem, 3vw, 1.6rem); margin:0}
-    .muted{color: var(--muted); font-size:.95rem}
-
-    .toolbar{display:flex; gap:10px; align-items:center; justify-content:space-between; flex-wrap:wrap; margin-top:12px}
-    .search{flex:1; min-width:220px; position:relative}
-    .search input{
-      width:100%; background: rgba(17,24,39,.7); border:1px solid rgba(255,255,255,.06);
-      color:var(--text); border-radius:14px; padding:12px 40px 12px 14px; outline:none;
-    }
-    .search svg{position:absolute; right:12px; top:50%; transform:translateY(-50%); opacity:.7}
-
-    .toggle{
-      background: rgba(17,24,39,.7); border:1px solid rgba(255,255,255,.06);
-      padding:10px 14px; border-radius:12px; cursor:pointer; user-select:none;
-    }
-
-    main{padding: 10px 0 80px}
-
-    /* Grade responsiva */
-    .grid{
-      display:grid; gap:10px; 
-      grid-template-columns: repeat(2, 1fr);
-    }
-    @media (min-width: 520px){ .grid{grid-template-columns: repeat(3, 1fr);} }
-    @media (min-width: 840px){ .grid{grid-template-columns: repeat(4, 1fr);} }
-
-    .card{
-      position:relative; overflow:hidden; border-radius:16px; background: var(--panel);
-      border: 1px solid rgba(255,255,255,.06);
-      aspect-ratio: 1/1; /* thumbs quadradas; imagem dentro dá crop bonito */
-      transition: transform .2s ease, box-shadow .2s ease;
-    }
-    .card:hover{ transform: translateY(-2px); box-shadow: 0 20px 60px rgba(0,0,0,.35) }
-
-    .card img{ width:100%; height:100%; object-fit: cover; display:block; }
-    .card .badge{
-      position:absolute; left:8px; top:8px; font-size:.75rem; padding:6px 9px; border-radius:9999px;
-      background: rgba(2,6,23,.75); border:1px solid rgba(255,255,255,.08); backdrop-filter: blur(6px);
-    }
-
-    /* Modal (lightbox) */
-    dialog#lightbox{
-      width: min(1200px, 94vw); max-height: 90vh; border:none; border-radius:18px; padding:0; overflow:hidden;
-      background: rgba(3,7,18,.9); color: var(--text); box-shadow: 0 30px 100px rgba(0,0,0,.6);
-    }
-    dialog::backdrop{ background: rgba(0,0,0,.65); backdrop-filter: blur(2px); }
-    .viewer{ position:relative; background:#000; }
-    .viewer img{ display:block; max-width:100%; max-height:80vh; margin:0 auto; }
-    .bar{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px; background: rgba(2,6,23,.9); border-top:1px solid rgba(255,255,255,.08) }
-    .btn{ border:1px solid rgba(255,255,255,.08); background: rgba(17,24,39,.7); color:var(--text); padding:10px 14px; border-radius:12px; cursor:pointer }
-    .btn:disabled{ opacity:.5; cursor:not-allowed }
-    .grow{ flex:1 }
-    .filename{ opacity:.9; font-size:.95rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
-
-    footer{ text-align:center; color:var(--muted); padding:40px 0; font-size:.9rem }
-    a.link{ color:#c4b5fd }
-  </style>
-</head>
-<body>
-  <header>
-    <div class="container">
-      <div class="title">
-        <div class="logo">G3</div>
-        <div>
           <h1>kkkk fiz so pra ri</h1>
           <div class="muted">v1</div>
         </div>
@@ -310,7 +112,6 @@
             <path d="M21 21l-4.3-4.3M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
           </svg>
         </div>
-        <button class="toggle" id="toggleMode" aria-pressed="true">Tema: Escuro</button>
       </div>
     </div>
   </header>
@@ -384,19 +185,6 @@
       });
     });
 
-    // Tema claro/escuro
-    const toggle = document.getElementById('toggleMode');
-    let escuro = true;
-    toggle.addEventListener('click', () => {
-      escuro = !escuro;
-      toggle.setAttribute('aria-pressed', String(escuro));
-      toggle.textContent = `Tema: ${escuro ? 'Escuro' : 'Claro'}`;
-      document.documentElement.style.setProperty('--bg', escuro ? '#0b1020' : '#f6f7fb');
-      document.documentElement.style.setProperty('--panel', escuro ? '#111827' : '#ffffff');
-      document.documentElement.style.setProperty('--text', escuro ? '#e5e7eb' : '#0b1020');
-      document.documentElement.style.setProperty('--muted', escuro ? '#9ca3af' : '#475569');
-    });
-
     // Lightbox
     const dlg = document.getElementById('lightbox');
     const full = document.getElementById('full');
@@ -440,4 +228,5 @@
     dlg.addEventListener('close', ()=>{ full.src = '' });
   </script>
 </body>
-</html>
+  </html>
+  
